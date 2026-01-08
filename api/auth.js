@@ -2,6 +2,28 @@ const { getDatabase } = require('../config/db');
 const User = require('../models/User');
 
 async function authHandler(req, res) {
+  // --- 1. SET CORS HEADERS MANUALLY ---
+  // This ensures the browser knows who is allowed to connect
+  const allowedOrigins = [
+    'http://localhost:5173',      // Your Local Frontend
+    'https://maptro.netlify.app'  // Your Live Frontend
+  ];
+  
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+  
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+  // --- 2. HANDLE PREFLIGHT (OPTIONS) REQUEST ---
+  // If the browser asks "Can I connect?", say "Yes" immediately.
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
+  // --- 3. NORMAL POST CHECK ---
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
